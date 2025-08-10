@@ -1,0 +1,16 @@
+Cake_ID,Cake_Name,Description,Sizes_Available,Serves_People_Small,Serves_People_Medium,Serves_People_Large,Price_Small_GBP,Price_Medium_GBP,Price_Large_GBP,Preparation_Days,Available,Dietary_Options,Category
+C001,Classic Victoria Sponge,Traditional light sponge with strawberry jam and fresh cream,"Small,Medium,Large",8,16,24,25,45,65,2,Yes,Gluten-Free Available,Classic
+C002,Chocolate Indulgence,Rich chocolate cake with Belgian chocolate ganache,"Small,Medium,Large",8,16,24,30,55,75,2,Yes,"Gluten-Free,Vegan Available",Chocolate
+C003,Red Velvet Dream,Classic red velvet with cream cheese frosting,"Small,Medium,Large",8,16,24,32,58,78,3,Yes,Gluten-Free Available,Specialty
+C004,Lemon Drizzle Delight,Zesty lemon cake with lemon drizzle and buttercream,"Small,Medium,Large",8,16,24,28,48,68,2,Yes,"Gluten-Free,Vegan Available",Citrus
+C005,Wedding Elegance,Three-tier vanilla and strawberry with royal icing,Large Only,50,0,0,0,0,185,7,Yes,Gluten-Free Available,Wedding
+C006,Birthday Celebration,Customizable birthday cake with personalized decorations,"Small,Medium,Large",8,16,24,35,60,85,3,Yes,All Dietary Options,Birthday
+C007,Carrot Cake Supreme,Moist carrot cake with cinnamon and cream cheese frosting,"Small,Medium,Large",8,16,24,30,52,72,2,Yes,Gluten-Free Available,Specialty
+C008,Black Forest Gateau,Chocolate sponge with cherries and whipped cream,"Medium,Large",0,16,24,0,58,82,4,Yes,Gluten-Free Available,Chocolate
+C009,Vanilla Bean Classic,Pure vanilla sponge with vanilla buttercream,"Small,Medium,Large",8,16,24,26,46,66,2,Yes,"Gluten-Free,Vegan Available",Classic
+C010,Strawberry Shortcake,Light sponge with fresh strawberries and cream,"Small,Medium,Large",8,16,24,32,56,76,2,Yes,Gluten-Free Available,Fruit
+C011,Coffee Walnut Cake,Coffee-flavored sponge with walnut pieces and buttercream,"Small,Medium,Large",8,16,24,29,51,71,2,No,Contains Nuts,Coffee
+C012,Chocolate Orange Fusion,Chocolate cake with orange zest and chocolate orange frosting,"Small,Medium,Large",8,16,24,31,57,77,3,Yes,Gluten-Free Available,Chocolate
+C013,Funfetti Surprise,Colorful vanilla cake with rainbow sprinkles,"Small,Medium,Large",8,16,24,28,50,70,2,Yes,"Gluten-Free,Vegan Available",Fun
+C014,Tiramisu Cake,Coffee-soaked sponge with mascarpone cream,"Medium,Large",0,16,24,0,62,88,4,Yes,Contains Alcohol,Specialty
+C015,Banoffee Bliss,Banana cake with toffee sauce and whipped cream,"Small,Medium,Large",8,16,24,30,54,74,3,Yes,Gluten-Free Available,Fruit

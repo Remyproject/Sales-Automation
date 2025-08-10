@@ -1,0 +1,28 @@
+Order_Reference,Customer_Name,Phone_Number,Email_Address,Delivery_Address,Postcode,Cake_Name,Cake_Size,Total_Price_GBP,Delivery_Date,Special_message,Dietary_Notes,Order_Date,Payment_Status,Payment_Date,PayPal_Order_ID,Payment_Reference
+HC-UK-20250804-332,Walter,+447350024600,walterzenia@gmail.com,"3-5 South Croydon, CR2 7DY, UK",CR2 7DY,Victoria Sponge - Large,Large,65,2025-08-05,None,None,2025-08-04,Paid,2025-08-04,5CG51782RY515712Y,1K918884PF6382146
+HC-UK-20250804-248,Remi Node,+44715377377,Tupundu2@gmail.com,"25 Hilltop Road, Holloway, London, N7 0HS, United Kingdom",N7 0HS,Red Velvet Dream - Medium,Medium,58,2025-08-07,None,None,2025-08-04,Awaiting_Payment,,,
+HC-UK-20250804-999,Nul Liverpool Street,Not provided,Not provided,Collection,Collection,Tiramisu Cake - Medium,Medium,35,[Date 4 days from today in YYYY-MM-DD],None,Vegan,2025-08-04,Awaiting_Payment,,,
+HC-UK-20250808-052,Emmanuel,+44754663467,walterzenia@gmail.com,"CR2 7DY, UK",CR2 7DY,Vanilla Bean Classic - Medium,Medium,46,2025-08-09,None,None,2025-08-08,Paid,2025-08-08,5EC24642XP801854A,0WG134677Y201745D
+HC-UK-20250808-235,remi folohunso,+447123456789,tupundu2@gmail.com,Collection from store,Collection,Red Velvet Dream - Small,Small,28,2024-08-13,None,None,2025-08-08,Awaiting_Payment,,,
+HC-UK-20250808-601,Walter,+447350025730,walterzenia@gmail.com,"No 234 London, UK",CR2 7DY,Banoffee Bliss - Small,Small,30,2025-08-10,None,No,2025-08-08,Paid,2025-08-08,78K756947W5659628,177214441M464473J
+HC-UK-20250808-588,Walter,+447350025370,walterzenia@gmail.com,Collection from store,Collection,Chocolate Indulgence - Small,Small,30,2025-08-10,None,None,2025-08-08,Awaiting_Payment,,,
+HC-UK-20250808-211,Walter,+447350025730,walterzenia@gmail.com,Collection from store,Collection,Classic Victoria Sponge - Medium,Medium,45,2025-08-10,None,Vegan,2025-08-08,Awaiting_Payment,,,
+HC-UK-20250808-491,Walter,+447350025730,walterzenia@gmail.com,Collection from store,Collection,Vanilla Bean Classic - Large,Large,66,2025-08-10,None,None,2025-08-08,Awaiting_Payment,,,
+HC-UK-20250808-220,Walter,+447350025740,walterzenia@gmail.com,Collection from store,Collection,Vanilla Bean Classic - Small,Small,22,2025-08-15,None,None,2025-08-08,Awaiting_Payment,,,
+HC-UK-20250808-224,Nnamdi,+447359925734,walterzenia@gmail.com,Collection from store,Collection,Vanilla Bean Classic - Large,Large,66,2025-08-20,None,None,2025-08-08,Awaiting_Payment,,,
+HC-UK-20250808-443,Nnamdi,+447359925734,walterzenia@gmail.com,Collection from store,Collection,Vanilla Bean Classic - Large,Large,66,2025-08-20,None,None,2025-08-08,Awaiting_Payment,,,
+HC-UK-20250808-512,Nnamdi,+447359925734,walterzenia@gmail.com,Collection from store,Collection,Vanilla Bean Classic - Large,Large,42,2025-08-20,None,None,2025-08-08,Awaiting_Payment,,,
+HC-UK-20250808-522,Nnamdi,+447359925734,walterzenia@gmail.com,Collection from store,Collection,Vanilla Bean Classic - Large,Large,42,2025-08-20,None,None,2025-08-08,Awaiting_Payment,,,
+HC-UK-20250808-861,Nnamdi,+447359925734,walterzenia@gmail.com,Collection from store,Collection,Vanilla Bean Classic - Large,Large,42,2025-08-20,None,None,2025-08-08,Awaiting_Payment,,,
+HC-UK-20250808-110,Nnamdi,+447359925734,walterzenia@gmail.com,Collection from store,Collection,Vanilla Bean Classic - Large,Large,42,2025-08-20,None,None,2025-08-08,Paid,2025-08-08,,3EG570327N899284U
+HC-UK-20250809-656,Remi fromula,+447123456789,Tupundu2@gmail.com,Collection from store,Collection,Birthday Celebration - Small,Small,35,2024-08-13,None,None,2025-08-09,Awaiting_Payment,,,
+HC-UK-20250809-744,Remi Tombloe,+447123456789,Tupundu2@gmail.com,Collection from store,Collection,Red Velvet Dream - Small,Small,32,2024-08-15,None,None,2025-08-09,Awaiting_Payment,,,
+HC-UK-20250809-652,Remi Thompson,+447123456789,Tupundu2@gmail.com,Collection from store,Collection,Chocolate Indulgence - Medium,Medium,55,2024-08-15,None,None,2025-08-09,Awaiting_Payment,,,
+HC-UK-20250809-258,Folohunso,+447123456789,Tupundu2@gmail.com,Collection from store,Collection,Red Velvet Dream - Small,Small,32,2024-08-23,None,None,2025-08-09,Awaiting_Payment,,,
+HC-UK-20250809-638,Walter Zenia,+447353667287,walterzenia@gmail.com,Collection from store,Collection,Lemon Drizzle Delight - Large,Large,45,2025-08-20,None,No,2025-08-09,Paid,2025-08-09,,4UB64466T4500731D
+HC-UK-20250810-717,Remi Davis,+447123456789,Tupundu2@gmail.com,Collection from store,Collection,Classic Victoria Sponge - Large,Large,65,2024-08-20,None,None,2025-08-10,Awaiting_Payment,,,
+HC-UK-20250810-786,Remi Davis,+447123456789,Tupundu2@gmail.com,Collection from store,Collection,Tiramisu Cake - Medium,Medium,62,2024-08-25,None,None,2025-08-10,Paid,2025-08-10,,6XW36432EV449922T
+HC-UK-20250810-392,Dalter Wyndham,+447123456789,Tupundu2@gmail.com,Collection from store,Collection,Carrot Cake Supreme - Large,Large,72,2024-08-25,None,None,2025-08-10,Awaiting_Payment,,,
+HC-UK-20250810-137,Davis Bonius,+447123456789,Tupundu2@gmail.com,Collection from store,Collection,Funfetti Surprise - Small,Small,28,2024-08-25,None,None,2025-08-10,Awaiting_Payment,,,
+HC-UK-20250810-844,Remi davis,+447123456789,Tupundu2@gmail.com,Collection from store,Collection,Banoffee Bliss - Small,Small,30,2024-08-25,None,None,2025-08-10,Awaiting_Payment,,,
+HC-UK-20250810-825,Remi Malone,+447123456789,Tupundu2@gmail.com,Collection from store,Collection,Strawberry Shortcake - Small,Small,32,2024-08-23,None,None,2025-08-10,Awaiting_Payment,,,
