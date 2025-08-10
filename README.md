@@ -389,7 +389,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## 📞 Support
 
-For support, email sfolohunsoremilekun@gmail.com or open an issue in this repository.
+For support, email folohunsoremilekun@gmail.com or open an issue in this repository.
 
 ## 🔒 Security
 
@@ -427,7 +427,7 @@ Please email folohunsoremilekun@gmail.com for any security concerns.
 
 ---
 
-**Made with ❤️ by [Remi]**
+**Made with ❤️ by **Remi**
 
 **Last Updated:** August 10, 2025
 
