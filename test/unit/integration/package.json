@@ -1,0 +1,25 @@
+{
+  "name": "telegram-sales-automation",
+  "version": "1.0.0",
+  "description": "Telegram bot sales automation for Heavenly Cakes UK",
+  "main": "index.js",
+  "scripts": {
+    "start": "n8n start",
+    "test": "echo \"No tests configured yet\"",
+    "backup": "sh scripts/backup.sh",
+    "restore": "sh scripts/restore.sh"
+  },
+  "keywords": [
+    "telegram",
+    "bot",
+    "automation",
+    "n8n",
+    "paypal",
+    "sales"
+  ],
+  "author": "Your Name",
+  "license": "MIT",
+  "dependencies": {
+    "n8n": "latest"
+  }
+}
