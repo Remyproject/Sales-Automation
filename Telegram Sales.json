@@ -1,0 +1,1984 @@
+{
+  "name": "Telegram Sales Automation",
+  "nodes": [
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=The Users message : {{ $json.message.text }}",
+        "options": {
+          "systemMessage": "=# Heavenly Cakes UK - Customer Service Agent\n\nYou are Jane, a friendly assistant for Heavenly Cakes UK.\n\n## IMPORTANT: Always Use Inventory Tool\n- **ALWAYS check inventory** before presenting cake options to customers\n- **ALWAYS verify preparation days** when customer provides delivery date\n- **Use the inventory tool** to get real-time availability and preparation requirements\n\n## Your Process:\n1. **Greet** warmly and ask about their occasion\n2. **Check inventory tool** to get available cakes and their details\n3. **Present available cake options** - Show cake name with prices for all sizes in this format:\n   ```\n   🎂 **Available Cakes:**\n   • Victoria Sponge - Small £25 | Medium £35 | Large £45\n   • Chocolate Indulgence - Small £30 | Medium £40 | Large £50\n   (continue for all available cakes...)\n   \n   Which cake catches your eye? 😊\n   ```\n4. **After cake selection, ask size** - \"What size would you like?\"\n5. **Ask for delivery or collection** - IMPORTANT: Mention delivery charges:\n   ```\n   \"Would you like delivery (£4 delivery charge) or collection (free pickup from our bakery)?\"\n   ```\n6. **Collect customer details SEQUENTIALLY** (one at a time):\n   - Step 6a: \"Can you provide your full name please?\"\n   - Step 6b: \"What's your phone number?\" (STRICT: Must be valid UK number)\n   - Step 6c: \"What's your email address?\" (STRICT: Must be valid email format)\n   - Step 6d: **If delivery**: \"What's your full delivery address including postcode?\"\n   - Step 6d: **If collection**: Skip address - just say \"Perfect! You can collect from our bakery.\"\n   - Step 6e: \"What date would you like your cake delivered/collected?\" \n   - Step 6f: **VALIDATE DATE**: Use inventory tool to check preparation days for selected cake\n   - Step 6g: \"Would you like a special message on the cake? (e.g., 'Happy Birthday!' or say 'No')\"\n   - Step 6h: \"Any dietary requirements? (gluten-free, vegan, allergies, or 'None')\"\n7. **Show concise order summary** with itemized pricing:\n   ```\n   📋 **Order Summary:**\n   🎂 Cake: [Cake Name - Size] - £[cake_price]\n   🚚 Delivery: £4 (or \"Collection: FREE\")\n   💰 **Total: £[total_amount]**\n   \n   Shall I confirm this order? (Yes/No)\n   ```\n8. **Ask: \"Shall I confirm this order? (Yes/No)\"**\n9. **Process immediately** when they say \"Yes\"\n\n## Available Sizes:\n- Small (serves 4-6) \n- Medium (serves 8-10)\n- Large (serves 12-15)\n\n## Delivery Options:\n- **Delivery**: UK-wide (£4 delivery charge)\n- **Collection**: Free pickup from our bakery\n\n## Business Details:\n- **Full payment** required via PayPal (GBP)\n- **Preparation time**: Always check inventory tool for specific cake preparation days\n- **Delivery charge**: £4 for all UK deliveries\n- Contact: Heavenlycake@quinnsolution.com\n\n## PRICING RULES:\n\n### Delivery Charges:\n- **Collection**: FREE\n- **Delivery**: £4 (clearly state this when customer chooses delivery)\n- **Always mention delivery charge** when presenting delivery option\n- **Show itemized breakdown** in order summary\n\n### Order Summary Format:\n```\n📋 **Order Summary:**\n🎂 Cake: [Cake Name - Size] - £[cake_price]\n🚚 Delivery: £4 (or \"Collection: FREE\")\n💰 **Total: £[cake_price + delivery_charge]**\n\nShall I confirm this order? (Yes/No)\n```\n\n## VALIDATION RULES:\n\n### Inventory Checking:\n- **ALWAYS use inventory tool** before showing cake options\n- **Check availability** of requested cake and size\n- **Get preparation days** for each cake from inventory\n- If cake unavailable: \"Sorry, [cake name] is unavailable. Here are our available options:\"\n\n### STRICT Email Validation:\n- **MUST contain @ symbol and valid domain** (.com, .co.uk, .org, etc.)\n- **MUST NOT accept**: incomplete emails, missing domains, obvious typos\n- If invalid: \"Please provide a valid email address (like: name@example.com)\"\n- **Keep asking until valid email provided**\n\n### STRICT Phone Number Validation:\n- **MUST be valid UK number** (starts with 07, +44, or 44)\n- **MUST be correct length** (11 digits for 07 format, or equivalent)\n- **MUST NOT accept**: incomplete numbers, wrong formats, non-UK numbers\n- Accept formats: \"07123456789\", \"+44 7123 456789\", \"447123456789\"\n- If invalid: \"Please provide a valid UK phone number (like: 07123 456789)\"\n- **Keep asking until valid phone provided**\n- **Auto-format to +44XXXXXXXXX** once valid\n\n### Date Validation - USER FRIENDLY:\n- **Accept ANY date format** that humans naturally use\n- **AUTOMATICALLY convert** to YYYY-MM-DD format for processing\n- **MUST be future date** (not today or past)\n- **Use inventory tool** to get minimum preparation days for selected cake\n- If invalid date: \"Sorry, that date needs [X] days preparation. Earliest available: [date]\"\n\n### Data Collection Rules:\n- **Ask ONE question at a time**\n- **Accept natural responses** for names, addresses, messages\n- **STRICT validation** for email and phone only\n- **Don't proceed** until email and phone are genuinely valid\n- **Move fast** but ensure data quality\n\n## CRITICAL RULES:\n\n**NEVER restart the conversation** once you've started collecting customer details\n\n**For Collection Orders**:\n- DO NOT ask for delivery address\n- Set address as \"Collection from store\" \n- Set postcode as \"Collection\"\n- Tell customer: \"Perfect! You can collect from our bakery.\"\n- **NO delivery charge** for collection\n\n**For Delivery Orders**:\n- **ALWAYS add £4 delivery charge** to total\n- **Clearly state** \"Plus £4 delivery charge\" when confirming delivery option\n- Show itemized breakdown in order summary\n\n**For Order Processing**:\n- Once you have all required details, IMMEDIATELY show order summary\n- DO NOT restart the cake selection process\n- DO NOT ask for cake selection again\n- PROCEED directly to order confirmation\n\n**ONLY when customer says \"Yes\" to confirm order**, output:\n\n[ORDER_CONFIRMED]\n{\n  \"customer_name\": \"[Full Name]\",\n  \"phone\": \"[Auto-formatted to +44XXXXXXXXX - MUST be valid]\",\n  \"email\": \"[MUST be valid email format]\", \n  \"address\": \"[Full Address with Country: UK OR 'Collection from store']\",\n  \"postcode\": \"[Postcode OR 'Collection']\",\n  \"cake_details\": \"[Selected Cake - Selected Size]\",\n  \"delivery_date\": \"[Auto-converted to YYYY-MM-DD]\",\n  \"delivery_method\": \"[Delivery or Collection]\",\n  \"cake_message\": \"[Message for cake or 'None']\",\n  \"dietary_requirements\": \"[Requirements or 'None']\",\n  \"special_requirements\": \"[Any special notes or 'None']\",\n  \"cake_price_gbp\": [cake_price_only],\n  \"delivery_charge_gbp\": [4 for delivery, 0 for collection],\n  \"total_amount_gbp\": [cake_price + delivery_charge],\n  \"payment_amount_gbp\": [cake_price + delivery_charge],\n  \"order_reference\": \"HC-UK-{{ $now.toFormat('yyyyMMdd') }}-{{ Math.floor(Math.random() * 1000).toString().padStart(3, '0') }}\"\n}\n\n## Example Conversation Flow:\n1. **Check inventory tool** → Get available cakes with prices\n2. Show cake options with prices for all sizes → \"Which cake catches your eye?\"\n3. \"What size would you like?\" → Wait for answer  \n4. \"Would you like delivery (£4 delivery charge) or collection (free pickup)?\" → Wait for answer\n5. \"Your full name please?\" → Wait & accept\n6. \"Your phone number?\" → VALIDATE until valid UK number\n7. \"Your email address?\" → VALIDATE until valid email format\n8. **IF DELIVERY**: \"Your delivery address with postcode?\" → Wait & accept\n8. **IF COLLECTION**: \"Perfect! You can collect from our bakery.\" → Skip address\n9. \"What date for delivery/collection?\" → Accept any format → Auto-convert & validate prep time\n10. \"Special message on the cake?\" → Wait for answer\n11. \"Any dietary requirements?\" → Wait for answer\n12. **Show itemized order summary** with delivery charge breakdown → Ask for confirmation\n13. **IMMEDIATELY process when confirmed** - don't restart conversation\n\n**Processing Rules:**\n- Always show prices with cake options\n- **ALWAYS mention delivery charges upfront**\n- Show itemized breakdown in order summary\n- STRICT validation for email and phone - don't accept invalid ones\n- Keep communication concise and friendly\n- Use inventory tool for real-time data\n- Process orders IMMEDIATELY when confirmed\n- **PRIORITIZE DATA QUALITY** - ensure valid contact information"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2,
+      "position": [
+        -896,
+        -48
+      ],
+      "id": "9eda6b97-6e96-4c31-bb97-d579f74d8710",
+      "name": "Cake Agent"
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "={{ $json.message.from.id }}",
+        "contextWindowLength": 10
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.3,
+      "position": [
+        -800,
+        176
+      ],
+      "id": "f95bc746-632e-46e2-8102-56fc8d0dc2b7",
+      "name": "Simple Memory"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "gpt-4.1-mini",
+          "mode": "list",
+          "cachedResultName": "gpt-4.1-mini"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        -928,
+        176
+      ],
+      "id": "761fd218-4059-443f-9471-d60a893955d4",
+      "name": "OpenAI1",
+      "credentials": {
+        "openAiApi": {
+          "id": "mRMQv5MvG6oPU9KE",
+          "name": "cake agen"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1kAYY9fV_0T4rLoqOWnBNXHslE9eXz5Ua6mbkuOJGMR0",
+          "mode": "list",
+          "cachedResultName": "Inventory /Pricing",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1kAYY9fV_0T4rLoqOWnBNXHslE9eXz5Ua6mbkuOJGMR0/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Inventory sheet",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1kAYY9fV_0T4rLoqOWnBNXHslE9eXz5Ua6mbkuOJGMR0/edit#gid=0"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheetsTool",
+      "typeVersion": 4.6,
+      "position": [
+        -672,
+        176
+      ],
+      "id": "a4520227-d6e1-4f20-acd6-ca18df28c309",
+      "name": "Check Inventory",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "DGFW54yfJK8qROjo",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.sandbox.paypal.com/v1/oauth2/token",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpBasicAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Accept",
+              "value": "application/json"
+            },
+            {
+              "name": "Accept-Language",
+              "value": "en_US"
+            },
+            {
+              "name": "Content-Type",
+              "value": "=application/x-www-form-urlencoded"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "raw",
+        "rawContentType": "application/x-www-form-urlencoded",
+        "body": "grant_type=client_credentials",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        416,
+        0
+      ],
+      "id": "74c7117b-de23-4d0c-af92-71b16d3f2e51",
+      "name": "Get PayPal Token",
+      "credentials": {
+        "httpBasicAuth": {
+          "id": "JlWsep7J5P25GswC",
+          "name": "PayPal Basic Auth"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.sandbox.paypal.com/v2/checkout/orders",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "Authorization",
+              "value": "=Bearer {{ $('Get PayPal Token').item.json.access_token }}"
+            },
+            {
+              "name": "PayPal-Request-Id",
+              "value": "={{ $('Parse Order').item.json.order_reference }}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"intent\": \"CAPTURE\",\n  \"purchase_units\": [\n    {\n      \"reference_id\": \"{{ $('Parse Order').item.json.order_reference }}\",\n      \"amount\": {\n        \"currency_code\": \"GBP\",\n        \"value\": \"{{ $('Parse Order').item.json.payment_amount_gbp.toFixed(2) }}\"\n      },\n      \"description\": \"Heavenly Cakes UK - {{ $('Parse Order').item.json.cake_details }} - Full Payment\",\n      \"custom_id\": \"{{ $('Parse Order').item.json.order_reference }}\",\n      \"invoice_id\": \"{{ $('Parse Order').item.json.order_reference }}\"\n    }\n  ],\n  \"payment_source\": {\n    \"paypal\": {\n      \"experience_context\": {\n        \"payment_method_preference\": \"IMMEDIATE_PAYMENT_REQUIRED\",\n        \"brand_name\": \"Heavenly Cakes UK\",\n        \"locale\": \"en-GB\",\n        \"landing_page\": \"LOGIN\",\n        \"shipping_preference\": \"NO_SHIPPING\",\n        \"user_action\": \"PAY_NOW\",\n        \"return_url\": \"https://n8n.srv930256.hstgr.cloud/webhook/paypal-success\",\n        \"cancel_url\": \"https://n8n.srv930256.hstgr.cloud/webhook/paypal-cancel\"\n      }\n    }\n  }\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        656,
+        0
+      ],
+      "id": "08eb280e-1ee5-48b4-8d30-2844731d7c8d",
+      "name": "Create PayPal Order"
+    },
+    {
+      "parameters": {
+        "jsCode": "const orderData = $('Add Cake Image').first().json; // Updated reference\nconst paypalResponse = $('Create PayPal Order').first().json;\n\nif (paypalResponse.status === 'PAYER_ACTION_REQUIRED' && paypalResponse.links) {\n  // Find the approval URL (can be 'approve' or 'payer-action')\n  const approvalLink = paypalResponse.links.find(link => \n    link.rel === 'approve' || link.rel === 'payer-action'\n  );\n  \n  if (approvalLink) {\n    // Get pricing breakdown\n    const cakePrice = parseFloat(orderData.cake_price_gbp || 0);\n    const deliveryCharge = parseFloat(orderData.delivery_charge_gbp || 0);\n    const totalAmount = parseFloat(orderData.total_amount_gbp || 0);\n    \n    // Format the delivery date nicely\n    const deliveryDate = new Date(orderData.delivery_date).toLocaleDateString('en-GB');\n    \n    // Create pricing breakdown\n    let pricingBreakdown = `🎂 Cake: ${orderData.cake_details}`;\n    if (orderData.delivery_method === 'Delivery' && deliveryCharge > 0) {\n      pricingBreakdown += `\\n🚚 Delivery: £${deliveryCharge}`;\n    } else if (orderData.delivery_method === 'Collection') {\n      pricingBreakdown += `\\n🆓 Collection: FREE`;\n    }\n    \n    // Create the formatted message with embedded clickable PayPal link\n    const chatbotMessage = `🎉 *Order Confirmed!* 🎂\n\n*Order Summary:*\n📋 Order Reference: ${orderData.order_reference}\n👤 Customer: ${orderData.customer_name}\n${pricingBreakdown}\n📅 ${orderData.delivery_method === 'Delivery' ? 'Delivery' : 'Collection'}: ${deliveryDate}\n💰 *Total Amount: £${totalAmount}*\n\n✅ *PayPal Payment Ready!*\n\n🔗 [PAY NOW - £${totalAmount}](${approvalLink.href})\n\n⏰ *Important:*\n- Complete payment within 24 hours to secure your order\n- You'll receive email confirmation once payment is successful\n- Our team will call you 24 hours before ${orderData.delivery_method === 'Delivery' ? 'delivery' : 'collection'}\n\n📋 *Your Order Details:*\n• ${orderData.delivery_method === 'Delivery' ? 'Address: ' + orderData.address + ', ' + orderData.postcode : 'Collection: From our bakery'}\n• Phone: ${orderData.phone}\n• Email: ${orderData.email}${orderData.cake_message && orderData.cake_message !== 'None' ? '\\n• Cake Message: \"' + orderData.cake_message + '\"' : ''}${orderData.dietary_requirements && orderData.dietary_requirements !== 'None' ? '\\n• Dietary Requirements: ' + orderData.dietary_requirements : ''}\n\nNeed help? Contact us:\n📞 Phone: +44 20 1234 5678\n📧 Email: orders@heavenlycakes.co.uk\n\nThank you for choosing Heavenly Cakes UK! 🎂✨`;\n    \n    return {\n      json: {\n        message_type: 'order_with_image',\n        message: chatbotMessage,\n        photo: orderData.cake_image_url || null,\n        payment_url: approvalLink.href,\n        paypal_order_id: paypalResponse.id,\n        order_reference: orderData.order_reference,\n        total_amount: totalAmount,\n        status: 'payment_link_sent',\n        success: true\n      }\n    };\n  }\n}\n\nconsole.log('PayPal response:', paypalResponse);\nreturn {\n  json: {\n    message_type: 'error',\n    message: `I apologize, but there was an issue generating your PayPal payment link. Please try again or contact our support team.\\n\\nError details: ${JSON.stringify(paypalResponse)}\\n\\nWe'll resolve this quickly and get back to you! 🎂`,\n    photo: null,\n    error: true,\n    status: 'payment_failed'\n  }\n};"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        912,
+        0
+      ],
+      "id": "c69108f1-7b31-4280-983f-2115bf437cbf",
+      "name": "Format Chat Response"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "59c19a34-d505-4af8-94fc-e093d625d9fd",
+              "leftValue": "={{ $json.is_order }}",
+              "rightValue": "true",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        -32,
+        16
+      ],
+      "id": "d2539d74-e973-48e2-b30d-eacb0792ab99",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "1E5jPCOA-UrS8w2ZGQg5e_SP8QKq_PQljJa8oDlkoz9k",
+          "mode": "list",
+          "cachedResultName": "Order Details sheet"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 513503943,
+          "mode": "list",
+          "cachedResultName": "New order sheet",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1E5jPCOA-UrS8w2ZGQg5e_SP8QKq_PQljJa8oDlkoz9k/edit#gid=513503943"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Order_Reference": "={{ $json.order_reference }}",
+            "Customer_Name": "={{ $json.customer_name }}",
+            "Phone_Number": "={{ $json.phone }}",
+            "Email_Address": "={{ $json.email }}",
+            "Delivery_Address": "={{ $json.address }}",
+            "Postcode": "={{ $json.postcode }}",
+            "Cake_Name": "={{ $json.cake_details }}",
+            "Total_Price_GBP": "={{ $json.total_amount_gbp }}",
+            "Delivery_Date": "={{ $json.delivery_date }}",
+            "Order_Date": "={{ $now.toFormat('yyyy-MM-dd') }}",
+            "Payment_Status": "Awaiting_Payment",
+            "Cake_Size": "={{ $json.cake_size }}",
+            "Dietary_Notes": "={{ $json.dietary_requirements }}",
+            "Special_message": "={{ $json.special_requirements }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Order_Reference",
+              "displayName": "Order_Reference",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Customer_Name",
+              "displayName": "Customer_Name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Phone_Number",
+              "displayName": "Phone_Number",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Email_Address",
+              "displayName": "Email_Address",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Delivery_Address",
+              "displayName": "Delivery_Address",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Postcode",
+              "displayName": "Postcode",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Cake_Name",
+              "displayName": "Cake_Name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Cake_Size",
+              "displayName": "Cake_Size",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Total_Price_GBP",
+              "displayName": "Total_Price_GBP",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Delivery_Date",
+              "displayName": "Delivery_Date",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Special_message",
+              "displayName": "Special_message",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Dietary_Notes",
+              "displayName": "Dietary_Notes",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Order_Date",
+              "displayName": "Order_Date",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Payment_Status",
+              "displayName": "Payment_Status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Payment_Date",
+              "displayName": "Payment_Date",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "PayPal_Order_ID",
+              "displayName": "PayPal_Order_ID",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Payment_Reference",
+              "displayName": "Payment_Reference",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4,
+      "position": [
+        192,
+        0
+      ],
+      "id": "6d14f70e-2c62-4fed-bc40-e1ccd5388f01",
+      "name": "Save Order Details",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "DGFW54yfJK8qROjo",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const agentResponse = $input.first().json;\n\n// Helper function to validate and format phone number to UK +44 format\nfunction formatUKPhone(phone) {\n  if (!phone) return '';\n  \n  // Remove all spaces, dashes, brackets\n  let cleaned = phone.replace(/[\\s\\-\\(\\)]/g, '');\n  \n  // Check if it's a valid UK number format\n  let validFormats = [\n    /^(\\+44|44)[1-9]\\d{8,9}$/, // +44 or 44 format\n    /^0[1-9]\\d{8,9}$/ // 0 format\n  ];\n  \n  let isValid = validFormats.some(regex => regex.test(cleaned));\n  if (!isValid) return ''; // Return empty if invalid\n  \n  // Format to +44 standard\n  if (cleaned.startsWith('+44')) {\n    return cleaned;\n  } else if (cleaned.startsWith('44')) {\n    return '+' + cleaned;\n  } else if (cleaned.startsWith('0')) {\n    return '+44' + cleaned.substring(1);\n  }\n  \n  return ''; // Return empty if can't format properly\n}\n\n// Helper function to validate email format\nfunction validateEmail(email) {\n  if (!email) return false;\n  \n  // Basic email validation regex\n  const emailRegex = /^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/;\n  return emailRegex.test(email.trim());\n}\n\n// Helper function to parse flexible date formats to YYYY-MM-DD\nfunction parseFlexibleDate(dateInput) {\n  if (!dateInput) return '';\n  \n  const today = new Date();\n  const input = dateInput.toLowerCase().trim();\n  \n  // Handle relative dates\n  if (input.includes('tomorrow')) {\n    const tomorrow = new Date(today);\n    tomorrow.setDate(today.getDate() + 1);\n    return tomorrow.toISOString().split('T')[0];\n  }\n  \n  if (input.includes('next week')) {\n    const nextWeek = new Date(today);\n    nextWeek.setDate(today.getDate() + 7);\n    return nextWeek.toISOString().split('T')[0];\n  }\n  \n  if (input.match(/in (\\d+) days?/)) {\n    const days = parseInt(input.match(/in (\\d+) days?/)[1]);\n    const futureDate = new Date(today);\n    futureDate.setDate(today.getDate() + days);\n    return futureDate.toISOString().split('T')[0];\n  }\n  \n  // Try to parse standard date formats\n  const possibleDate = new Date(dateInput);\n  if (!isNaN(possibleDate.getTime())) {\n    return possibleDate.toISOString().split('T')[0];\n  }\n  \n  // If already in YYYY-MM-DD format, return as is\n  if (dateInput.match(/^\\d{4}-\\d{2}-\\d{2}$/)) {\n    return dateInput;\n  }\n  \n  // Return original if can't parse\n  return dateInput;\n}\n\n// Extract message text with better handling\nlet messageText = '';\nif (typeof agentResponse === 'string') {\n  messageText = agentResponse;\n} else if (agentResponse.output) {\n  messageText = agentResponse.output;\n} else if (agentResponse.message) {\n  messageText = agentResponse.message;\n} else if (agentResponse.text) {\n  messageText = agentResponse.text;\n} else {\n  messageText = JSON.stringify(agentResponse);\n}\n\nconsole.log('Agent Response:', messageText);\n\n// More flexible detection of order confirmation\nconst hasOrderFlag = messageText.includes('[ORDER_CONFIRMED]') || \n                    messageText.includes('ORDER_CONFIRMED') ||\n                    (messageText.includes('{') && messageText.includes('customer_name') && messageText.includes('order_reference'));\n\nif (hasOrderFlag) {\n  console.log('Order confirmation detected');\n  \n  // Extract the JSON part - more flexible approach\n  let jsonStart = messageText.indexOf('{');\n  let jsonEnd = messageText.lastIndexOf('}') + 1;\n  \n  // If no braces found, the whole message might be JSON\n  if (jsonStart === -1) {\n    try {\n      const testParse = JSON.parse(messageText);\n      if (testParse.customer_name || testParse.customername) {\n        jsonStart = 0;\n        jsonEnd = messageText.length;\n      }\n    } catch (e) {\n      // Not pure JSON\n    }\n  }\n  \n  if (jsonStart !== -1 && jsonEnd !== -1) {\n    try {\n      const jsonText = messageText.substring(jsonStart, jsonEnd);\n      const orderData = JSON.parse(jsonText);\n      console.log('Parsed order data:', orderData);\n      \n      // Extract cake name and size from cake_details\n      const cakeDetails = orderData.cake_details || orderData.cakedetails || '';\n      const cakeNameMatch = cakeDetails.match(/^([^-]+)/);\n      const cakeSizeMatch = cakeDetails.match(/ - (.+)$/);\n      \n      // Extract cake name and size properly\n      const cakeName = cakeNameMatch ? cakeNameMatch[1].trim() : cakeDetails;\n      const cakeSize = cakeSizeMatch ? cakeSizeMatch[1].trim() : 'Medium';\n      \n      // Calculate pricing with delivery charges\n      const cakePrice = parseFloat(orderData.cake_price_gbp || orderData.total_amount_gbp || orderData.totalamountgbp || orderData.payment_amount_gbp || 0);\n      const deliveryCharge = parseFloat(orderData.delivery_charge_gbp || (orderData.delivery_method === 'Delivery' ? 4 : 0));\n      const totalAmount = cakePrice + deliveryCharge;\n      \n      // Format and validate phone number and email\n      const rawPhone = orderData.phone || '';\n      const rawEmail = orderData.email || '';\n      \n      const formattedPhone = formatUKPhone(rawPhone);\n      const isValidEmail = validateEmail(rawEmail);\n      \n      // Don't process if phone or email is invalid\n      if (!formattedPhone) {\n        console.log('❌ Invalid phone number:', rawPhone);\n        return {\n          json: {\n            is_order: false,\n            message_type: 'chat',\n            message: 'Invalid phone number provided. Please provide a valid UK phone number.',\n            error: 'invalid_phone'\n          }\n        };\n      }\n      \n      if (!isValidEmail) {\n        console.log('❌ Invalid email address:', rawEmail);\n        return {\n          json: {\n            is_order: false,\n            message_type: 'chat', \n            message: 'Invalid email address provided. Please provide a valid email address.',\n            error: 'invalid_email'\n          }\n        };\n      }\n      \n      const formattedDate = parseFlexibleDate(orderData.delivery_date || orderData.deliverydate || '');\n      \n      // Generate order timestamp and reference if not provided\n      const orderDate = new Date().toISOString().slice(0, 10); // YYYY-MM-DD\n      const orderTime = new Date().toISOString().slice(11, 19); // HH:MM:SS\n      const orderRef = orderData.order_reference || orderData.orderreference || \n                      `HC-UK-${new Date().toISOString().slice(0, 10).replace(/-/g, '')}-${Math.floor(Math.random() * 1000).toString().padStart(3, '0')}`;\n      \n      // Handle both field name formats (with and without underscores) - MATCH YOUR SHEET COLUMNS\n      const normalizedOrder = {\n        // Order tracking\n        order_reference: orderRef,\n        order_date: orderDate,\n        order_time: orderTime,\n        order_status: 'Confirmed - Payment Pending',\n        \n        // Basic customer info - VALIDATED\n        customer_name: orderData.customer_name || orderData.customername || '',\n        phone: formattedPhone, // Validated and formatted to +44 format\n        email: rawEmail.trim(), // Validated email\n        address: orderData.address || (orderData.delivery_method === 'Collection' ? 'Collection from store' : ''),\n        postcode: orderData.postcode || (orderData.delivery_method === 'Collection' ? 'Collection' : ''),\n        \n        // Cake details - split into separate fields for better sheet organization\n        cake_details: cakeDetails,\n        cake_name: cakeName,\n        cake_size: cakeSize,\n        \n        // Dates and delivery - AUTO-FORMATTED\n        delivery_date: formattedDate, // Auto-converted to YYYY-MM-DD\n        delivery_method: orderData.delivery_method || orderData.deliverymethod || 'Delivery',\n        \n        // Cake customization and requirements\n        cake_message: orderData.cake_message || orderData.cakemessage || 'None',\n        dietary_requirements: orderData.dietary_requirements || orderData.dietaryrequirements || 'None',\n        special_requirements: orderData.special_requirements || orderData.specialrequirements || 'None',\n        \n        // Payment - FULL PAYMENT SYSTEM WITH DELIVERY CHARGES\n        cake_price_gbp: cakePrice,\n        delivery_charge_gbp: deliveryCharge,\n        total_amount_gbp: totalAmount,\n        payment_amount_gbp: totalAmount, // PayPal charges the full amount\n        payment_status: 'Payment Pending',\n        \n        // Additional fields for comprehensive order tracking\n        preparation_days_required: orderData.preparation_days_required || orderData.preparationdaysrequired || '',\n        notes: orderData.notes || '',\n        created_at: new Date().toISOString()\n      };\n      \n      // Validate required fields and payment amount\n      const requiredFieldsCheck = normalizedOrder.customer_name && normalizedOrder.email && normalizedOrder.phone && \n          normalizedOrder.cake_details && normalizedOrder.total_amount_gbp > 0;\n      \n      // For delivery, address is required. For collection, address is auto-set\n      const addressCheck = (orderData.delivery_method === 'Collection') || \n                          (orderData.delivery_method === 'Delivery' && normalizedOrder.address && normalizedOrder.postcode);\n      \n      if (requiredFieldsCheck && addressCheck) {\n        \n        console.log('✅ All required fields present, processing order');\n        console.log('Order Reference:', normalizedOrder.order_reference);\n        console.log('Total amount:', normalizedOrder.total_amount_gbp);\n        console.log('Payment amount:', normalizedOrder.payment_amount_gbp);\n        console.log('Cake name:', normalizedOrder.cake_name);\n        console.log('Cake size:', normalizedOrder.cake_size);\n        console.log('Delivery date (formatted):', normalizedOrder.delivery_date);\n        console.log('Phone (formatted):', normalizedOrder.phone);\n        console.log('Customer:', normalizedOrder.customer_name);\n        \n        return {\n          json: {\n            ...normalizedOrder,\n            is_order: true,\n            message_type: 'order'\n          }\n        };\n      } else {\n        console.log('❌ Missing required order fields:', normalizedOrder);\n        console.log('Missing fields check:');\n        console.log('- Customer name:', !!normalizedOrder.customer_name);\n        console.log('- Email:', !!normalizedOrder.email);\n        console.log('- Phone:', !!normalizedOrder.phone);\n        console.log('- Address:', !!normalizedOrder.address);\n        console.log('- Cake details:', !!normalizedOrder.cake_details);\n        console.log('- Total amount:', normalizedOrder.total_amount_gbp > 0);\n      }\n    } catch (e) {\n      console.log('❌ Failed to parse order JSON:', e.message);\n    }\n  } else {\n    console.log('❌ No valid JSON found in order confirmation');\n  }\n}\n\n// Regular chat message - clean up and return\nconst cleanMessage = messageText\n  .replace('[ORDER_CONFIRMED]', '')\n  .replace('ORDER_CONFIRMED', '')\n  .replace(/\\{[\\s\\S]*\\}/, '')\n  .trim();\n\nconsole.log('Returning as regular chat message:', cleanMessage);\n\nreturn {\n  json: {\n    is_order: false,\n    message_type: 'chat',\n    message: cleanMessage || messageText,\n    customer_name: '',\n    order_reference: '',\n    total_amount_gbp: 0,\n    payment_amount_gbp: 0\n  }\n};"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -480,
+        -16
+      ],
+      "id": "41da3ee9-d155-45c3-af15-3cd8e8da6a1e",
+      "name": "Parse Order"
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $('Parse Order').item.json.email }}",
+        "subject": "=Order Summary {{ $('Format Chat Response').item.json.order_reference }}",
+        "message": "=<h1>Order Confirmation</h1>\n<p>Thank you for your order!</p>\n<p><strong>Order Reference:</strong> {{ $('Parse Order').item.json.order_reference }}</p>\n<p><strong>Customer:</strong> {{ $('Parse Order').item.json.customer_name }}</p>\n<p><strong>Cake:</strong> {{ $('Parse Order').item.json.cake_details }}</p>\n<p><strong>Total:</strong> £{{ $('Parse Order').item.json.total_amount_gbp }}</p>\n<p><a href=\"{{ $('Format Chat Response').item.json.payment_url }}\">Pay Now</a></p>",
+        "options": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        1408,
+        0
+      ],
+      "id": "66f6f867-1ea7-46e7-ab46-3f034e287ce9",
+      "name": "Send to customer",
+      "webhookId": "757050af-4246-49a1-97f8-511730bc859c",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "YYQCl8SfjJ5MBbj8",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "path": "paypal-success",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        -896,
+        720
+      ],
+      "id": "d8838102-6e20-41c4-a9fb-39056000ddcc",
+      "name": "PayPal Success Webhook",
+      "webhookId": "paypal-success-webhook-id"
+    },
+    {
+      "parameters": {
+        "path": "paypal-cancel",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        -1200,
+        1296
+      ],
+      "id": "ac9999ac-39cb-4a39-94d3-0efa4b8d26b3",
+      "name": "PayPal Cancel Webhook",
+      "webhookId": "paypal-cancel-webhook-id"
+    },
+    {
+      "parameters": {
+        "jsCode": "const webhookData = $input.first();\nconsole.log('=== WEBHOOK DEBUG INFO ===');\nconsole.log('Full webhook data:', JSON.stringify(webhookData, null, 2));\nconsole.log('Webhook data keys:', Object.keys(webhookData));\n\n// Try multiple ways to extract the token\nlet token = '';\nlet payerID = '';\n\n// Method 1: Direct query access\nif (webhookData.query) {\n  console.log('Method 1 - Direct query:', webhookData.query);\n  token = webhookData.query.token || '';\n  payerID = webhookData.query.PayerID || '';\n}\n\n// Method 2: Body parameters (for POST requests)\nif (!token && webhookData.body) {\n  console.log('Method 2 - Body parameters:', webhookData.body);\n  token = webhookData.body.token || '';\n  payerID = webhookData.body.PayerID || '';\n}\n\n// Method 3: URL parameters (if passed differently)\nif (!token && webhookData.params) {\n  console.log('Method 3 - URL params:', webhookData.params);\n  token = webhookData.params.token || '';\n  payerID = webhookData.params.PayerID || '';\n}\n\n// Method 4: Headers (sometimes tokens are in headers)\nif (!token && webhookData.headers) {\n  console.log('Method 4 - Checking headers for token-like values');\n  // Look for authorization or custom headers\n  const authHeader = webhookData.headers.authorization || webhookData.headers.Authorization || '';\n  if (authHeader.includes('Bearer ')) {\n    token = authHeader.replace('Bearer ', '');\n  }\n}\n\n// Method 5: Search in any nested JSON\nif (!token) {\n  console.log('Method 5 - Searching entire webhook data for token patterns');\n  const fullString = JSON.stringify(webhookData);\n  \n  // Look for token patterns\n  const tokenMatch = fullString.match(/\"token\":\"([^\"]+)\"/);\n  const payerMatch = fullString.match(/\"PayerID\":\"([^\"]+)\"/);\n  \n  if (tokenMatch) {\n    token = tokenMatch[1];\n    console.log('Found token via pattern search:', token);\n  }\n  \n  if (payerMatch) {\n    payerID = payerMatch[1];\n    console.log('Found PayerID via pattern search:', payerID);\n  }\n}\n\n// Method 6: Check if this is a different type of webhook (actual PayPal webhook vs redirect)\nif (!token) {\n  console.log('Method 6 - Checking if this is a PayPal webhook notification');\n  \n  // PayPal webhook notifications have a different structure\n  if (webhookData.event_type || webhookData.resource) {\n    console.log('This appears to be a PayPal webhook notification, not a redirect');\n    \n    // Extract from PayPal webhook structure\n    const resource = webhookData.resource || {};\n    token = resource.id || webhookData.id || '';\n    \n    // For webhooks, we might need to extract order ID differently\n    if (resource.supplementary_data && resource.supplementary_data.related_ids) {\n      token = resource.supplementary_data.related_ids.order_id || token;\n    }\n  }\n}\n\nconsole.log('=== EXTRACTION RESULTS ===');\nconsole.log('Extracted Token:', token);\nconsole.log('Extracted PayerID:', payerID);\n\n// If still no token, provide detailed error info\nif (!token) {\n  console.error('❌ No token found anywhere in webhook data');\n  console.error('Available data structure:');\n  console.error('- Keys:', Object.keys(webhookData));\n  console.error('- Query keys:', webhookData.query ? Object.keys(webhookData.query) : 'No query object');\n  console.error('- Body keys:', webhookData.body ? Object.keys(webhookData.body) : 'No body object');\n  console.error('- Params keys:', webhookData.params ? Object.keys(webhookData.params) : 'No params object');\n  \n  // Return a safe error response instead of throwing\n  return {\n    json: {\n      error: true,\n      error_message: 'Token not found in webhook data',\n      webhook_structure: {\n        keys: Object.keys(webhookData),\n        query: webhookData.query || null,\n        body: webhookData.body || null,\n        params: webhookData.params || null\n      },\n      timestamp: new Date().toISOString()\n    }\n  };\n}\n\nconsole.log('✅ PayPal parameters extracted successfully');\n\nreturn {\n  json: {\n    // PayPal data from webhook\n    paypal_token: token,\n    payer_id: payerID,\n    \n    // Placeholders for data to be filled later\n    order_reference: 'LOOKUP_NEEDED',\n    amount_paid: 0,\n    capture_id: token,\n    payer_name: 'LOOKUP_NEEDED',\n    payer_email: 'LOOKUP_NEEDED',\n    \n    // Status info\n    payment_completed: false,\n    status: 'payment_authorized',\n    timestamp: new Date().toISOString(),\n    extracted_from: 'webhook_processing',\n    \n    // Debug info\n    debug: {\n      webhook_keys: Object.keys(webhookData),\n      extraction_method: token ? 'successful' : 'failed'\n    }\n  }\n};"
+      },
+      "id": "35dc3522-6a98-4c11-ad6e-b7329c2697b1",
+      "name": "Process PayPal Success",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -640,
+        720
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const inputData = $input.first();\nconst queryParams = inputData.query || {};\nconst token = queryParams.token || '';\n\n// Extract order reference from PayPal webhook data\nconst webhookData = inputData.json || {};\nlet orderReference = '';\nlet payerEmail = '';\n\n// Log the webhook data structure\nconsole.log('Full webhook data:', JSON.stringify(webhookData, null, 2));\n\n// Try different paths where PayPal might send the order reference\nif (webhookData.resource?.invoice_id) {\n  orderReference = webhookData.resource.invoice_id;\n} else if (webhookData.resource?.custom_id) {\n  orderReference = webhookData.resource.custom_id;\n} else if (webhookData.resource?.purchase_units?.[0]?.reference_id) {\n  orderReference = webhookData.resource.purchase_units[0].reference_id;\n} else if (webhookData.resource?.purchase_units?.[0]?.custom_id) {\n  orderReference = webhookData.resource.purchase_units[0].custom_id;\n}\n\n// Try to get payer email\nif (webhookData.resource?.payer?.email_address) {\n  payerEmail = webhookData.resource.payer.email_address;\n} else if (webhookData.payer?.email_address) {\n  payerEmail = webhookData.payer.email_address;\n}\n\nconst cancelPage = `<!DOCTYPE html>\n<html>\n<head>\n    <title>Payment Cancelled - Heavenly Cakes UK</title>\n    <style>\n        body { font-family: Arial; text-align: center; padding: 50px; background: #f8f9fa; }\n        .container { background: white; padding: 40px; border-radius: 10px; max-width: 500px; margin: 0 auto; }\n        .cancel-icon { font-size: 60px; color: #dc3545; }\n        h1 { color: #e91e63; }\n    </style>\n</head>\n<body>\n    <div class=\"container\">\n        <div class=\"cancel-icon\">❌</div>\n        <h1>🎂 Payment Cancelled</h1>\n        <p>Your payment was cancelled. Your order is still pending.</p>\n        <p><strong>Need help?</strong><br>📞 +44 20 1234 5678<br>📧 orders@heavenlycakes.co.uk</p>\n        <p style=\"color: #999; font-size: 12px;\">Order Ref: ${orderReference || 'Not found'}</p>\n    </div>\n</body>\n</html>`;\n\nreturn {\n  json: {\n    html_response: cancelPage,\n    status: 'payment_cancelled',\n    paypal_token: token,\n    order_reference: orderReference || 'not_found',\n    payer_email: payerEmail || 'not_found',\n    has_email: !!payerEmail,\n    has_reference: !!orderReference\n  }\n};"
+      },
+      "id": "ab5ff034-6c73-4356-b443-ecdd1d844703",
+      "name": "Process PayPal Cancel",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -976,
+        1296
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://api-m.sandbox.paypal.com/v2/checkout/orders/{{ $('Combined Data').first().json.paypal_order_id }}/capture",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "Authorization",
+              "value": "=Bearer {{ $('Get PayPal Token2').first().json.access_token }}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "{}",
+        "options": {
+          "redirect": {
+            "redirect": {}
+          },
+          "response": {
+            "response": {
+              "fullResponse": true
+            }
+          },
+          "timeout": 10000
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1088,
+        720
+      ],
+      "id": "f2cda8ee-8b7b-487c-aac5-bd672acc81d9",
+      "name": "Capture PayPal Payment"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Get the PayPal capture response\nconst captureResponse = $input.first().json;\nconst combinedData = $('Combined Data').first().json;\n\nconsole.log('Capture Response:', JSON.stringify(captureResponse, null, 2));\nconsole.log('Combined Data:', JSON.stringify(combinedData, null, 2));\n\n// Extract capture details from the response body\nconst captureBody = captureResponse.body || captureResponse;\nconst captureStatus = captureBody.status;\nconst paymentCapture = captureBody.purchase_units?.[0]?.payments?.captures?.[0];\n\nconsole.log('Capture Status:', captureStatus);\nconsole.log('Payment Capture:', paymentCapture);\n\n// Check if payment was successful\nconst isPaymentSuccessful = captureStatus === 'COMPLETED' && paymentCapture?.status === 'COMPLETED';\n\nif (isPaymentSuccessful) {\n  console.log('✅ Payment capture successful');\n  \n  const captureId = paymentCapture.id;\n  const amountPaid = parseFloat(paymentCapture.amount?.value || 0);\n  const currency = paymentCapture.amount?.currency_code || 'GBP';\n  \n  // Use CUSTOMER data from combined data, NOT PayPal payer data\n  const customerName = combinedData.customer_name || 'Customer';\n  const customerEmail = combinedData.email || '';\n  \n  return {\n    json: {\n      // Success response\n      html_response: `\n        <!DOCTYPE html>\n        <html>\n        <head>\n            <title>Payment Successful - Heavenly Cakes UK</title>\n            <style>\n                body { font-family: Arial; text-align: center; padding: 50px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }\n                .container { background: white; padding: 40px; border-radius: 10px; max-width: 500px; margin: 0 auto; }\n                .success-icon { font-size: 60px; color: #28a745; }\n                h1 { color: #e91e63; }\n            </style>\n        </head>\n        <body>\n            <div class=\"container\">\n                <div class=\"success-icon\">✅</div>\n                <h1>🎂 Payment Successful!</h1>\n                <p>Thank you ${customerName} for your payment!</p>\n                <p><strong>Order:</strong> ${combinedData.order_reference}</p>\n                <p><strong>Amount:</strong> £${amountPaid}</p>\n                <p><strong>PayPal ID:</strong> ${captureId}</p>\n            </div>\n        </body>\n        </html>\n      `,\n      \n      // Payment details using CUSTOMER data\n      payment_completed: true,\n      order_reference: combinedData.order_reference,\n      amount_paid: amountPaid,\n      currency: currency,\n      capture_id: captureId,\n      \n      // Use customer data, not PayPal payer data\n      customer_name: customerName,\n      customer_email: customerEmail,\n      \n      // Also include PayPal payer data for reference\n      payer_name: captureBody.payer?.name?.given_name + ' ' + captureBody.payer?.name?.surname,\n      payer_email: captureBody.payer?.email_address,\n      \n      status: 'payment_successful',\n      timestamp: new Date().toISOString()\n    }\n  };\n  \n} else {\n  console.log('❌ Payment capture failed');\n  \n  return {\n    json: {\n      html_response: `<h1>Payment Failed</h1><p>Please try again.</p>`,\n      payment_completed: false,\n      error: true,\n      status: 'payment_failed',\n      error_details: {\n        capture_status: captureStatus,\n        capture_details: paymentCapture\n      }\n    }\n  };\n}"
+      },
+      "id": "3875d0c9-1860-4928-99a5-dd6123be160b",
+      "name": "Format Success Response",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1296,
+        720
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentId": {
+          "__rl": true,
+          "value": "1E5jPCOA-UrS8w2ZGQg5e_SP8QKq_PQljJa8oDlkoz9k",
+          "mode": "list",
+          "cachedResultName": "Order Details sheet"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 513503943,
+          "mode": "list",
+          "cachedResultName": "New order sheet",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1E5jPCOA-UrS8w2ZGQg5e_SP8QKq_PQljJa8oDlkoz9k/edit#gid=513503943"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Payment_Status": "Paid",
+            "row_number": 0,
+            "Payment_Date": "={{ $now.toFormat('yyyy-MM-dd') }}",
+            "PayPal_Order_ID": "={{ $('Capture PayPal Payment').item.json.id }}",
+            "Payment_Reference": "={{ $('Format Success Response').item.json.capture_id }}",
+            "Order_Reference": "={{ $('Format Success Response').item.json.order_reference }}"
+          },
+          "matchingColumns": [
+            "Order_Reference"
+          ],
+          "schema": [
+            {
+              "id": "Order_Reference",
+              "displayName": "Order_Reference",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Customer_Name",
+              "displayName": "Customer_Name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Phone_Number",
+              "displayName": "Phone_Number",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Email_Address",
+              "displayName": "Email_Address",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Delivery_Address",
+              "displayName": "Delivery_Address",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Postcode",
+              "displayName": "Postcode",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Cake_Name",
+              "displayName": "Cake_Name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Cake_Size",
+              "displayName": "Cake_Size",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Total_Price_GBP",
+              "displayName": "Total_Price_GBP",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Delivery_Date",
+              "displayName": "Delivery_Date",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Special_Requirements",
+              "displayName": "Special_Requirements",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Dietary_Notes",
+              "displayName": "Dietary_Notes",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Order_Date",
+              "displayName": "Order_Date",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Preparation_Days",
+              "displayName": "Preparation_Days",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Payment_Status",
+              "displayName": "Payment_Status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Payment_Date",
+              "displayName": "Payment_Date",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "PayPal_Order_ID",
+              "displayName": "PayPal_Order_ID",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Payment_Reference",
+              "displayName": "Payment_Reference",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "row_number",
+              "displayName": "row_number",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true,
+              "readOnly": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4,
+      "position": [
+        528,
+        1104
+      ],
+      "id": "1b749bf5-51bc-49c9-934a-4572dddb5231",
+      "name": "Update Order Status",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "DGFW54yfJK8qROjo",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "respondWith": "text",
+        "responseBody": "={{ $node[\"Format Success Response\"].json.html_response }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.4,
+      "position": [
+        2112,
+        720
+      ],
+      "id": "7ecb7581-02e8-4d88-a112-ef9b5127bff9",
+      "name": "Respond Success"
+    },
+    {
+      "parameters": {
+        "respondWith": "text",
+        "responseBody": "<div style=\"font-family: Arial, sans-serif; padding: 20px; text-align: center;\">\n    <h2>Payment Cancelled</h2>\n    <p>Your payment has been cancelled successfully.</p>\n    <p>Your order is still pending.</p>\n    <p>You will receive an email confirmation shortly.</p>\n    <p>If you'd like to complete your order, please try again or contact us.</p>\n    <p>Thank you,<br>Heavenly Cakes UK</p>\n</div>",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.4,
+      "position": [
+        -752,
+        1296
+      ],
+      "id": "f62ec707-a016-4c7b-b8b6-dc5b0d67e0f8",
+      "name": "Respond Cancel"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.sandbox.paypal.com/v1/oauth2/token",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpBasicAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Accept",
+              "value": "application/json"
+            },
+            {
+              "name": "Accept-Language",
+              "value": "en_US"
+            },
+            {
+              "name": "Content-Type",
+              "value": "=application/x-www-form-urlencoded"
+            },
+            {
+              "name": " Authorization",
+              "value": "=Basic {{ $base64('ARoSiZMpbppdc-5eDC-aFzeDVuskC1gKIpw7CMK_DgNRRA9dO9tEsfGgP200YlQXmUWLDlboiuc9Ibim:EBcV4FG7yMudPwNvyzHQnLBVpa5gFEFHXboLC0MWqpmKmjw1UkTLm-4DYRYSMVvQxBhlkeBYVQKZiQ5a') }}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "raw",
+        "rawContentType": "application/x-www-form-urlencoded",
+        "body": "grant_type=client_credentials",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -432,
+        720
+      ],
+      "id": "b52e3d6c-a9c7-4239-b299-bccec69a6e58",
+      "name": "Get PayPal Token2",
+      "credentials": {
+        "httpBasicAuth": {
+          "id": "JlWsep7J5P25GswC",
+          "name": "PayPal Basic Auth"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sendTo": "essienwalter2025@gmail.com",
+        "subject": "=🔔 New Paid Order - {{ $('Format Success Response').item.json.order_reference }}",
+        "message": "=<h1>🔔 New Paid Order Received!</h1>\n\n<p><strong>📋 Order Reference:</strong> {{ $('Format Success Response').first().json.order_reference }}</p>\n<p><strong>💰 Amount Paid:</strong> £{{ $('Format Success Response').first().json.amount_paid }}</p>\n<p><strong>💳 PayPal Transaction ID:</strong> {{ $('Format Success Response').first().json.capture_id }}</p>\n\n<h3>🎂 Cake to Prepare:</h3>\n<div style=\"text-align: center; margin: 20px 0; padding: 15px; background: #f8f9fa; border-radius: 10px;\">\n  <img src=\"{{ $('Add Cake Image1').first().json.cake_image_url }}\" \n       alt=\"{{ $('Add Cake Image1').first().json.cake_name_only }}\" \n       style=\"max-width: 250px; height: auto; border-radius: 8px; box-shadow: 0 3px 6px rgba(0,0,0,0.1);\">\n  <p style=\"font-weight: bold; color: #e91e63; margin: 10px 0 0 0; font-size: 18px;\">{{ $('Add Cake Image1').first().json.cake_details }}</p>\n</div>\n\n<h3>👤 Customer Information:</h3>\n<ul style=\"background: #fff3cd; padding: 15px; border-radius: 8px;\">\n  <li><strong>Full Name:</strong> {{ $('Add Cake Image1').first().json.customer_name }}</li>\n  <li><strong>Email:</strong> {{ $('Add Cake Image1').first().json.email }}</li>\n  <li><strong>Phone:</strong> {{ $('Add Cake Image1').first().json.phone }}</li>\n  {{ $('Add Cake Image1').first().json.delivery_method === 'Delivery' ? '<li><strong>Address:</strong> ' + $('Add Cake Image1').first().json.address + ', ' + $('Add Cake Image1').first().json.postcode + '</li>' : '<li><strong>Collection:</strong> Customer will pick up from bakery</li>' }}\n</ul>\n\n<h3>🎂 Order Details:</h3>\n<ul style=\"background: #d1ecf1; padding: 15px; border-radius: 8px;\">\n  <li><strong>Cake Type & Size:</strong> {{ $('Add Cake Image1').first().json.cake_details }}</li>\n  <li><strong>Price:</strong> £{{ $('Format Success Response').first().json.amount_paid }}</li>\n  <li><strong>{{ $('Add Cake Image1').first().json.delivery_method === 'Delivery' ? 'Delivery' : 'Collection' }} Date:</strong> {{ $('Add Cake Image1').first().json.delivery_date }}</li>\n  <li><strong>Method:</strong> {{ $('Add Cake Image1').first().json.delivery_method }}</li>\n  {{ $('Add Cake Image1').first().json.cake_message !== 'None' ? '<li><strong>Cake Message:</strong> \"' + $('Add Cake Image1').first().json.cake_message + '\"</li>' : '' }}\n  {{ $('Add Cake Image1').first().json.dietary_requirements !== 'None' ? '<li><strong>Dietary Requirements:</strong> ' + $('Add Cake Image1').first().json.dietary_requirements + '</li>' : '' }}\n</ul>\n\n<div style=\"background: #d4edda; padding: 20px; border-radius: 10px; margin: 20px 0; text-align: center;\">\n  <h3 style=\"color: #155724; margin: 0 0 10px 0;\">🎯 Action Required: Please start preparing this order!</h3>\n  <p style=\"margin: 0; color: #155724;\">Remember to call the customer 24 hours before {{ $('Add Cake Image1').first().json.delivery_method === 'Delivery' ? 'delivery' : 'collection' }}: <strong>{{ $('Add Cake Image1').first().json.phone }}</strong></p>\n</div>\n\n<hr style=\"margin: 30px 0;\">\n<p style=\"text-align: center; color: #666;\"><em>Order Management System - Heavenly Cakes UK</em></p>",
+        "options": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        1840,
+        720
+      ],
+      "id": "3b07eeed-99f2-4c8f-a874-f21d3c6def9e",
+      "name": "Vendor Notification",
+      "webhookId": "ee55fd4a-65f5-40d2-bb5a-ee47ed7f5037",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "YYQCl8SfjJ5MBbj8",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "updates": [
+          "message"
+        ],
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegramTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        -1152,
+        -48
+      ],
+      "id": "59039f2f-fbb3-414d-bcd5-8fe663d5d391",
+      "name": "Telegram Trigger",
+      "webhookId": "118803d5-156d-40c0-9db1-bbb602068445",
+      "credentials": {
+        "telegramApi": {
+          "id": "uWo79Ft8NfBTns0A",
+          "name": "HeavenCake"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $('Format Success Response').first().json.customer_email }}",
+        "subject": "=🎂 Payment Successful - Order {{ $('Format Success Response').first().json.order_reference }}",
+        "message": "=<h1>🎂 Payment Successful!</h1>\n\n<p>Dear {{ $('Format Success Response').first().json.customer_name }},</p>\n\n<p>Thank you for your payment of £{{ $('Format Success Response').first().json.amount_paid }}!</p>\n\n<p><strong>Order Reference:</strong> {{ $('Format Success Response').first().json.order_reference }}</p>\n<p><strong>PayPal Transaction ID:</strong> {{ $('Format Success Response').first().json.capture_id }}</p>\n\n<h3>🎂 Your Beautiful Cake:</h3>\n<div style=\"text-align: center; margin: 20px 0;\">\n  <img src=\"{{ $('Add Cake Image1').first().json.cake_image_url }}\" \n       alt=\"{{ $('Add Cake Image1').first().json.cake_name_only }}\" \n       style=\"max-width: 300px; height: auto; border-radius: 10px; box-shadow: 0 4px 8px rgba(0,0,0,0.1);\">\n  <p style=\"font-style: italic; color: #666; margin-top: 10px; font-size: 16px;\">{{ $('Add Cake Image1').first().json.cake_details }}</p>\n</div>\n\n<h3>📋 Your Order Details:</h3>\n<ul style=\"list-style-type: none; padding-left: 0;\">\n  <li><strong>🎂 Cake:</strong> {{ $('Add Cake Image1').first().json.cake_details }}</li>\n  <li><strong>💰 Price:</strong> £{{ $('Format Success Response').first().json.amount_paid }}</li>\n  <li><strong>📅 {{ $('Add Cake Image1').first().json.delivery_method === 'Delivery' ? 'Delivery' : 'Collection' }} Date:</strong> {{ $('Add Cake Image1').first().json.delivery_date }}</li>\n  <li><strong>📦 Method:</strong> {{ $('Add Cake Image1').first().json.delivery_method }}</li>\n  {{ $('Add Cake Image1').first().json.delivery_method === 'Delivery' ? '<li><strong>📍 Address:</strong> ' + $('Add Cake Image1').first().json.address + ', ' + $('Add Cake Image1').first().json.postcode + '</li>' : '<li><strong>📍 Collection:</strong> From our bakery</li>' }}\n  {{ $('Add Cake Image1').first().json.cake_message !== 'None' ? '<li><strong>💌 Cake Message:</strong> \"' + $('Add Cake Image1').first().json.cake_message + '\"</li>' : '' }}\n  {{ $('Add Cake Image1').first().json.dietary_requirements !== 'None' ? '<li><strong>🥗 Dietary Requirements:</strong> ' + $('Add Cake Image1').first().json.dietary_requirements + '</li>' : '' }}\n</ul>\n\n<div style=\"background: #f8f9fa; padding: 15px; border-radius: 8px; margin: 20px 0;\">\n  <p><strong>✅ Your order is confirmed and will be {{ $('Add Cake Image1').first().json.delivery_method === 'Delivery' ? 'delivered on' : 'ready for collection on' }} {{ $('Add Cake Image1').first().json.delivery_date }}.</strong></p>\n  <p>We'll contact you 24 hours before {{ $('Add Cake Image1').first().json.delivery_method === 'Delivery' ? 'delivery' : 'collection' }} to confirm the time.</p>\n</div>\n\n<div style=\"text-align: center; margin: 30px 0; padding: 20px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border-radius: 10px;\">\n  <h3 style=\"color: white; margin: 0;\">Thank you for choosing Heavenly Cakes UK! 🎂✨</h3>\n  <p style=\"margin: 10px 0 0 0;\">We can't wait for you to taste your delicious {{ $('Add Cake Image1').first().json.cake_name_only }}!</p>\n</div>\n\n<hr style=\"margin: 30px 0;\">\n<div style=\"text-align: center; color: #666;\">\n  <p><em>Need help? Contact us at:</em></p>\n  <p>📞 Phone: +44 20 1234 5678<br>\n  📧 Email: orders@heavenlycakes.co.uk</p>\n</div>",
+        "options": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        1568,
+        720
+      ],
+      "id": "7e1f4738-bffe-44a9-99ee-cb0d287675e7",
+      "name": "Customer notification",
+      "webhookId": "c838c123-00d6-4677-8ba4-975dc02242f0",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "YYQCl8SfjJ5MBbj8",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "content": "## Telegram Trigger\n\n**What it does**: Entry point that receives messages from Telegram\n\n**Input**: Customer messages via Telegram bot\n\n**Output**: Raw message data to Cake Agent\n\n**Role**: Initiates the entire workflow when customer sends a message",
+        "height": 432,
+        "width": 304
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1216,
+        -320
+      ],
+      "typeVersion": 1,
+      "id": "4f1a5d61-20ea-4600-bc22-7171e5417065",
+      "name": "Sticky Note"
+    },
+    {
+      "parameters": {
+        "content": "## Cake Agent (OpenAI)\n\n**What it does**: AI chatbot using Walter persona to handle customer conversations\n**Input**: Customer messages and inventory data\n**Output**: Conversational responses or order confirmation JSON\n**Role**: Main customer service agent - collects order details, validates info, uses inventory tool\n**Connected Tools:** Memory (conversation history), Check Inventory (real-time stock)",
+        "height": 432,
+        "width": 400,
+        "color": 4
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -912,
+        -320
+      ],
+      "typeVersion": 1,
+      "id": "b56d7e99-be2e-4cdc-af62-6fde9d3db6aa",
+      "name": "Sticky Note1"
+    },
+    {
+      "parameters": {
+        "content": "## Parse Order\n\n**What it does**: Processes agent responses to detect and extract order confirmations\n**Input**: Agent response text\n**Output**: Structured order data (JSON) or regular chat message\n**Role**: Converts natural language orders into structured data for processing",
+        "height": 432,
+        "width": 224
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -528,
+        -320
+      ],
+      "typeVersion": 1,
+      "id": "00b87313-6568-4cf8-a906-74b695485902",
+      "name": "Sticky Note2"
+    },
+    {
+      "parameters": {
+        "content": "## IF Switch\n\n**What it does**: Conditional logic to route based on message type\n**Input**: Parsed data with is_order flag\n**Output**: Routes to either order processing or chat response\n**Role**: Determines workflow path - order processing vs regular chat",
+        "height": 432,
+        "width": 160,
+        "color": 3
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -64,
+        -320
+      ],
+      "typeVersion": 1,
+      "id": "e647cb92-659b-4e1d-8c10-4c330ee47b89",
+      "name": "Sticky Note3"
+    },
+    {
+      "parameters": {
+        "content": "## Save Order Details\n\n**What it does**: Stores complete order information in Google Sheets\n**Input**: Structured order data\n**Output**: Confirmation of data saved\n**Role**: Creates permanent record of order for business tracking and fulfillment",
+        "height": 432,
+        "width": 256,
+        "color": 6
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        96,
+        -320
+      ],
+      "typeVersion": 1,
+      "id": "e3c9dd0d-3bed-4ba5-a2cf-3f193f715901",
+      "name": "Sticky Note4"
+    },
+    {
+      "parameters": {
+        "content": "## Get PayPal Token\n\n**What it does:** Authenticates with PayPal API to get access token\n**Input**: PayPal credentials\n**Output**: Bearer token for API calls\n**Role**: Enables secure communication with PayPal payment system",
+        "height": 432
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        352,
+        -320
+      ],
+      "typeVersion": 1,
+      "id": "b59022a3-1066-42ca-b1ab-7e49027079a5",
+      "name": "Sticky Note5"
+    },
+    {
+      "parameters": {
+        "content": "## Create PayPal Order\n\n**What it does**: Creates payment request in PayPal system\n**Input**: Order data (amount, currency, description) + PayPal token\n**Output**: PayPal order ID and payment approval URL\n**Role**: Generates secure payment link for customer",
+        "height": 432,
+        "color": 2
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        592,
+        -320
+      ],
+      "typeVersion": 1,
+      "id": "e9946f10-a568-41c7-8067-f97cad0fe4ea",
+      "name": "Sticky Note6"
+    },
+    {
+      "parameters": {
+        "content": "## Format Chat Response\n\n**What it does**: Creates beautifully formatted order confirmation message\n**Input**: Order data + PayPal payment URL\n**Output**: Professional order summary with payment link\n**Role**: Provides customer with clear order details and payment instructions",
+        "height": 432,
+        "color": 4
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        832,
+        -320
+      ],
+      "typeVersion": 1,
+      "id": "1a98ddd3-a375-4c96-af1c-46295938e095",
+      "name": "Sticky Note7"
+    },
+    {
+      "parameters": {
+        "content": "## Send a Text Message (Telegram)\n\n**What it does**: Delivers formatted order confirmation to customer\n**Input*: Formatted message\n**Output**: Message sent to customer's Telegram\n**Role**: Completes order confirmation delivery to customer",
+        "height": 432
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1072,
+        -320
+      ],
+      "typeVersion": 1,
+      "id": "1c35954b-6f08-46eb-a320-99ac80b553bd",
+      "name": "Sticky Note8"
+    },
+    {
+      "parameters": {
+        "content": "## Send to Customer (Gmail)\n\n**What it does:** Sends order confirmation email to customer\n**Input**: Order details and customer email\n**Output**: Professional email confirmation\n**Role**: Provides backup confirmation and official record for customer",
+        "height": 432,
+        "color": 5
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1312,
+        -320
+      ],
+      "typeVersion": 1,
+      "id": "61ccf76a-84ad-458a-bca8-68e4647cb01f",
+      "name": "Sticky Note9"
+    },
+    {
+      "parameters": {
+        "content": "## Send a Text Message (Telegram) - Chat\n\n**What it does**: Sends regular conversational responses to customer\n**Input**: Agent's chat response\n**Output**: Message delivered to Telegram\n**Role**: Maintains natural conversation flow for non-order interactions",
+        "height": 208,
+        "width": 608,
+        "color": 4
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -544,
+        144
+      ],
+      "typeVersion": 1,
+      "id": "db59fbc4-10cd-4cf7-86a1-68979681dee3",
+      "name": "Sticky Note10"
+    },
+    {
+      "parameters": {
+        "content": "# Payment Success Flow \n",
+        "height": 80,
+        "width": 416
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1264,
+        336
+      ],
+      "typeVersion": 1,
+      "id": "398bf671-c133-433a-982b-30eb3fc0db92",
+      "name": "Sticky Note11"
+    },
+    {
+      "parameters": {
+        "content": "## PayPal Success Webhook\n\n*What it does*: Receives notifications when PayPal payment is completed\n**Input**: PayPal payment confirmation data\nOutput: Payment success trigger\n**Role**: Detects successful payments automatically",
+        "height": 432,
+        "width": 272
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -992,
+        432
+      ],
+      "typeVersion": 1,
+      "id": "3c6fb3de-dd0f-42e8-a39c-4979240d9605",
+      "name": "Sticky Note12"
+    },
+    {
+      "parameters": {
+        "content": "## Process PayPal Success\n\n**What it does**: Handles successful payment data and extracts details\nInput: PayPal webhook data\n**Output**: Processed payment confirmation\n**Role**: Validates and structures payment success information",
+        "height": 432,
+        "color": 5
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -720,
+        432
+      ],
+      "typeVersion": 1,
+      "id": "17fe7573-ab56-4398-bfe3-f22d70510add",
+      "name": "Sticky Note13"
+    },
+    {
+      "parameters": {
+        "content": "## Get PayPal Token2\n\n**What it does**: Gets fresh PayPal API token for post-payment operations\n**Input**: PayPal credentials\n**Output**: Bearer token\n**Role**: Enables secure PayPal API calls for payment verification",
+        "height": 432,
+        "color": 3
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -480,
+        432
+      ],
+      "typeVersion": 1,
+      "id": "be0782cc-33fa-47cb-811c-92be721c5351",
+      "name": "Sticky Note14"
+    },
+    {
+      "parameters": {
+        "content": "## Code (Custom Logic)\n\n**What it does**: Custom processing logic for payment handling\n**Input**: Payment data\n**Output**: Processed payment information\n**Role**: Handles specific business logic for payment processing",
+        "height": 432,
+        "color": 5
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        0,
+        432
+      ],
+      "typeVersion": 1,
+      "id": "327370c8-dad9-40c0-a65f-554d5a986be6",
+      "name": "Sticky Note15"
+    },
+    {
+      "parameters": {
+        "content": "## Capture PayPal Payment\n\n**What it does**: Finalizes the payment capture in PayPal\n**Input**: PayPal order ID and token\n**Output**: Payment capture confirmation\n**Role**: Completes the payment transaction officially",
+        "height": 432,
+        "color": 2
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1008,
+        432
+      ],
+      "typeVersion": 1,
+      "id": "6a3bf3e9-5a2b-43d5-a819-10deba48899f",
+      "name": "Sticky Note16"
+    },
+    {
+      "parameters": {
+        "content": "## Format Success Response\n\n**What it does**: Creates payment success confirmation message\n**Input**: Payment details\n**Output**: Formatted success message\n**Role**: Prepares confirmation message for customer and business",
+        "height": 432
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1248,
+        432
+      ],
+      "typeVersion": 1,
+      "id": "75abac4f-89f8-46eb-9b36-530a95f08ca7",
+      "name": "Sticky Note17"
+    },
+    {
+      "parameters": {
+        "content": "## Customer Notification (Gmail)\n\n**What it does**: Sends payment confirmation email to customer\n**Input**: Payment success details\n**Output**: Email confirmation to customer\n**Role**: Provides official payment receipt and confirmation",
+        "height": 432,
+        "width": 272,
+        "color": 6
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1488,
+        432
+      ],
+      "typeVersion": 1,
+      "id": "eaf0115f-6ba4-4474-897e-21dc2e3a75c6",
+      "name": "Sticky Note18"
+    },
+    {
+      "parameters": {
+        "content": "## Vendor Notification (Gmail)\n\n**What it does**: Alerts business owner of successful payment\n**Input**: Payment and order details\n**Output**: Email notification to business\n**Role**: Notifies business of new paid order for fulfillment",
+        "height": 432,
+        "width": 272
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1760,
+        432
+      ],
+      "typeVersion": 1,
+      "id": "6bd7ded8-2110-4219-8b2c-0c87afbd4d6d",
+      "name": "Sticky Note19"
+    },
+    {
+      "parameters": {
+        "content": "## Update Order Status\n\n**What it does**: Updates order status in Google Sheets to \"Paid\"\n**Input**: Order reference and payment confirmation\n**Output**: Updated order record\n**Role**: Maintains accurate order tracking and status management",
+        "height": 416,
+        "width": 288,
+        "color": 4
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        480,
+        864
+      ],
+      "typeVersion": 1,
+      "id": "068696e5-45a2-49e8-8823-c5b6a7819f12",
+      "name": "Sticky Note20"
+    },
+    {
+      "parameters": {
+        "content": "## Respond Success\n\n**What it does**: Sends final success message to customer via Telegram\n**Input**: Success confirmation\n**Output**: Final confirmation message\n**Role**: Completes customer communication loop with payment success",
+        "height": 432,
+        "color": 4
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        2032,
+        432
+      ],
+      "typeVersion": 1,
+      "id": "63c9dc62-6dc1-4f20-a7f3-03129a699bbe",
+      "name": "Sticky Note21"
+    },
+    {
+      "parameters": {
+        "content": "#  Payment Cancellation Flow",
+        "height": 80,
+        "width": 480,
+        "color": 3
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1280,
+        928
+      ],
+      "typeVersion": 1,
+      "id": "6671bb4f-9f7c-4350-ba3d-6c6035b1a333",
+      "name": "Sticky Note22"
+    },
+    {
+      "parameters": {
+        "content": "## PayPal Cancel Webhook\n\n**What it does**: Receives notifications when customer cancels payment\n**Input**: PayPal cancellation data\n**Output**: Cancellation trigger\n**Role**: Detects when customers abandon or cancel payments",
+        "height": 384
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1280,
+        1040
+      ],
+      "typeVersion": 1,
+      "id": "23fae851-e10b-4aa9-8543-9831266adf63",
+      "name": "Sticky Note23"
+    },
+    {
+      "parameters": {
+        "content": "## Process PayPal Cancel\n\n**What it does**: Handles payment cancellation data\n**Input**: PayPal cancellation webhook\n**Output**: Processed cancellation information\n**Role**: Structures cancellation data for appropriate response",
+        "height": 384,
+        "color": 5
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1040,
+        1040
+      ],
+      "typeVersion": 1,
+      "id": "86ee2d01-4aaa-4a4f-9d77-98e3d3ea3aa7",
+      "name": "Sticky Note24"
+    },
+    {
+      "parameters": {
+        "content": "## Respond Cancel\n\n**What it does**: Sends cancellation acknowledgment to customer\n**Input**: Cancellation details\n**Output**: Friendly cancellation message via Telegram\n**Role**: Maintains good customer experience even when payments are cancelled",
+        "height": 384,
+        "color": 2
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -800,
+        1040
+      ],
+      "typeVersion": 1,
+      "id": "3cc27512-42a2-45ca-bde7-08b784026bbd",
+      "name": "Sticky Note26"
+    },
+    {
+      "parameters": {
+        "content": "# Main Order Processing Flow",
+        "height": 96,
+        "width": 512,
+        "color": 5
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1216,
+        -464
+      ],
+      "typeVersion": 1,
+      "id": "40296964-a07a-4d6f-8037-1b83fc002641",
+      "name": "Sticky Note25"
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1E5jPCOA-UrS8w2ZGQg5e_SP8QKq_PQljJa8oDlkoz9k",
+          "mode": "list",
+          "cachedResultName": "Order Details sheet",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1E5jPCOA-UrS8w2ZGQg5e_SP8QKq_PQljJa8oDlkoz9k/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 513503943,
+          "mode": "list",
+          "cachedResultName": "New order sheet",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1E5jPCOA-UrS8w2ZGQg5e_SP8QKq_PQljJa8oDlkoz9k/edit#gid=513503943"
+        },
+        "filtersUI": {
+          "values": [
+            {
+              "lookupColumn": "Order_Reference",
+              "lookupValue": "={{ $('Process PayPal Response').first().json.order_reference }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.6,
+      "position": [
+        304,
+        720
+      ],
+      "id": "268688a8-f6dd-4ccc-ab47-eb904149c76c",
+      "name": "Lookup Order Details",
+      "alwaysOutputData": true,
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "DGFW54yfJK8qROjo",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Get PayPal payment data from Process PayPal Response\nconst paypalData = $('Process PayPal Response').first().json;\n\n// Get order details from Google Sheets lookup\nconst sheetData = $('Lookup Order Details').first().json;\n\nconsole.log('=== COMBINE DATA DEBUG ===');\nconsole.log('PayPal Data:', JSON.stringify(paypalData, null, 2));\nconsole.log('Sheet Data:', JSON.stringify(sheetData, null, 2));\n\n// Check if Google Sheets returned data\nlet hasSheetData = false;\nlet orderDetails = {};\n\nif (sheetData && typeof sheetData === 'object' && Object.keys(sheetData).length > 0) {\n  // If sheetData is an array, take the first item\n  if (Array.isArray(sheetData) && sheetData.length > 0) {\n    orderDetails = sheetData[0];\n    hasSheetData = true;\n  } else if (!Array.isArray(sheetData)) {\n    orderDetails = sheetData;\n    hasSheetData = true;\n  }\n}\n\nconsole.log('Has Sheet Data:', hasSheetData);\nconsole.log('Order Details:', orderDetails);\n\n// Combine PayPal payment data with order details\n// IMPORTANT: Using your actual Google Sheet field names\nconst combinedData = {\n  // PayPal payment information\n  order_reference: paypalData.order_reference || 'Unknown',\n  amount_paid: paypalData.amount_paid || 0,\n  capture_id: paypalData.paypal_order_id || paypalData.paypal_token || '',\n  payer_name: paypalData.payer_name || 'Customer',\n  payer_email: paypalData.payer_email || '',\n  payment_completed: paypalData.payment_completed || false,\n  paypal_order_id: paypalData.paypal_order_id || '',\n  paypal_token: paypalData.paypal_token || '',\n  \n  // Order details from sheet - USING YOUR ACTUAL FIELD NAMES\n  customer_name: orderDetails.Customer_Name || paypalData.payer_name || 'Customer',\n  phone: orderDetails.Phone_Number || '',\n  email: orderDetails.Email_Address || paypalData.payer_email || '',\n  address: orderDetails.Delivery_Address || '',\n  postcode: orderDetails.Postcode || '',\n  cake_details: orderDetails.Cake_Name || '',\n  cake_size: orderDetails.Cake_Size || '',\n  delivery_date: orderDetails.Delivery_Date || '',\n  delivery_method: orderDetails.Delivery_Address === 'Collection from store' ? 'Collection' : 'Delivery',\n  cake_message: orderDetails.Special_message || 'None',\n  dietary_requirements: orderDetails.Dietary_Notes || 'None',\n  total_amount_gbp: orderDetails.Total_Price_GBP || paypalData.amount_paid || 0,\n  \n  // Additional sheet data\n  order_date: orderDetails.Order_Date || '',\n  payment_status: orderDetails.Payment_Status || '',\n  row_number: orderDetails.row_number || ''\n};\n\nconsole.log('=== FINAL COMBINED DATA ===');\nconsole.log(JSON.stringify(combinedData, null, 2));\n\nreturn {\n  json: combinedData\n};"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        560,
+        736
+      ],
+      "id": "9e34b742-dc79-45c9-8d82-e4b9483b5332",
+      "name": "Combined Data"
+    },
+    {
+      "parameters": {
+        "url": "=https://api-m.sandbox.paypal.com/v2/checkout/orders/{{ $('Process PayPal Success').first().json.paypal_token }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "Authorization",
+              "value": "=Bearer {{ $('Get PayPal Token2').first().json.access_token }}"
+            }
+          ]
+        },
+        "options": {
+          "redirect": {
+            "redirect": {}
+          },
+          "response": {
+            "response": {
+              "fullResponse": true
+            }
+          },
+          "timeout": 10000
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -160,
+        720
+      ],
+      "id": "e4ddab1f-1bfe-4d1d-a5f3-751c744d7030",
+      "name": "HTTP Request"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Get the PayPal API response\nconst httpResponse = $input.first().json;\nconsole.log('PayPal API Response:', JSON.stringify(httpResponse, null, 2));\n\n// The actual order details are nested in the 'body' property\nconst orderDetails = httpResponse.body || httpResponse;\nconst purchaseUnit = orderDetails.purchase_units?.[0] || {};\nconst payer = orderDetails.payer || {};\nconst amount = purchaseUnit.amount || {};\n\n// Extract custom_id which contains our order reference\nconst orderReference = purchaseUnit.custom_id || purchaseUnit.reference_id || orderDetails.id || 'Unknown';\nconst amountPaid = parseFloat(amount.value || 0);\nconst currency = amount.currency_code || 'GBP';\n\n// Extract payer information\nconst payerName = `${payer.name?.given_name || ''} ${payer.name?.surname || ''}`.trim() || 'Customer';\nconst payerEmail = payer.email_address || '';\n\nconsole.log('Extracted order data:');\nconsole.log('- Order Reference (custom_id):', orderReference);\nconsole.log('- Amount:', amountPaid, currency);\nconsole.log('- Payer Name:', payerName);\nconsole.log('- Payer Email:', payerEmail);\nconsole.log('- PayPal Order ID:', orderDetails.id);\nconsole.log('- Order Status:', orderDetails.status);\n\n// Get original token from Process PayPal Success\nconst originalToken = $('Process PayPal Success').first().json.paypal_token;\n\nreturn {\n  json: {\n    // PayPal order details\n    paypal_order_id: orderDetails.id,\n    paypal_token: originalToken,\n    order_reference: orderReference,\n    amount_paid: amountPaid,\n    currency: currency,\n    payer_name: payerName,\n    payer_email: payerEmail,\n    payer_id: payer.payer_id || $('Process PayPal Success').first().json.payer_id || '',\n    \n    // Order status\n    order_status: orderDetails.status,\n    payment_completed: orderDetails.status === 'APPROVED',\n    \n    // Full order details for reference\n    full_order_details: orderDetails,\n    \n    timestamp: new Date().toISOString(),\n    \n    // Debug info\n    debug: {\n      purchase_unit_keys: Object.keys(purchaseUnit),\n      payer_keys: Object.keys(payer),\n      amount_keys: Object.keys(amount),\n      extraction_successful: orderReference !== 'Unknown'\n    }\n  }\n};"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        64,
+        720
+      ],
+      "id": "4d0ce776-3e84-427d-836e-60655f817fe5",
+      "name": "Process PayPal Response"
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $('Telegram Trigger').item.json.message.from.id }}",
+        "text": "={{ $json.message }}",
+        "additionalFields": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        -32,
+        192
+      ],
+      "id": "1e35d505-dd07-46db-8654-ad7e040b10f9",
+      "name": "Send a text message",
+      "webhookId": "bf171323-4558-49b8-9135-05302393465b",
+      "executeOnce": false,
+      "credentials": {
+        "telegramApi": {
+          "id": "uWo79Ft8NfBTns0A",
+          "name": "HeavenCake"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "sendPhoto",
+        "chatId": "={{ $('Telegram Trigger').first().json.message.chat.id }}",
+        "file": "={{ $('Format Chat Response').first().json.photo }}",
+        "additionalFields": {
+          "caption": "={{ $('Format Chat Response').first().json.message }}"
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        1152,
+        0
+      ],
+      "id": "8b167e6c-efb5-4985-9c74-70b263b48774",
+      "name": "Send a photo message",
+      "webhookId": "bf171323-4558-49b8-9135-05302393465b",
+      "executeOnce": true,
+      "alwaysOutputData": true,
+      "retryOnFail": true,
+      "credentials": {
+        "telegramApi": {
+          "id": "uWo79Ft8NfBTns0A",
+          "name": "HeavenCake"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Get the parsed order data\nconst orderData = $input.first().json;\nconsole.log('Order Data:', JSON.stringify(orderData, null, 2));\n\n// Only add images for actual orders, not chat messages\nif (orderData.is_order && orderData.cake_details) {\n  \n  console.log('Processing order - adding cake image');\n  \n  const cakeDetails = orderData.cake_details;\n  \n  // Map cake names to Imgur DIRECT image URLs\n  // IMPORTANT: Use the direct format: https://i.imgur.com/ID.jpg\n  const cakeImages = {\n    'Victoria Sponge': 'https://i.imgur.com/GrAAUeB.jpg',\n    'Chocolate Indulgence': 'https://i.imgur.com/yNYdcAE.jpg',\n    'Red Velvet Dream': 'https://i.imgur.com/7JYGBgK.jpg', \n    'Lemon Drizzle Delight': 'https://i.imgur.com/YxJtORB.jpg',\n    'Vanilla Bean Classic': 'https://i.imgur.com/kUoFs1r.jpg',\n    'Carrot Cake Supreme': 'https://i.imgur.com/bsrQwp2.jpg',\n    'Wedding Elegance': 'https://i.imgur.com/VUBc6Gd.jpg',\n    'Birthday Special': 'https://i.imgur.com/5GLsstV.jpg',\n    'Black Forest Gateau': 'https://i.imgur.com/QmVO3Fa.jpg',\n    'Strawberry Shortcake': 'https://i.imgur.com/kyBtLKL.jpg',\n    'Chocolate Orange Fusion': 'https://i.imgur.com/XJrWZbC.jpg',\n    'Funfetti Surprise': 'https://i.imgur.com/ft9vNQC.jpg',\n    'Tiramisu Cake': 'https://i.imgur.com/q3hIv7V.jpg',\n    'Banoffee Bliss': 'https://i.imgur.com/qbNUKhw.jpg'\n  };\n  \n  // Extract cake name (remove size info)\n  const cakeNameOnly = cakeDetails.split(' - ')[0].trim();\n  console.log('Cake Name Only:', cakeNameOnly);\n  \n  // Get the image URL\n  const cakeImageUrl = cakeImages[cakeNameOnly] || 'https://i.imgur.com/default.jpg';\n  \n  console.log('Selected Image URL:', cakeImageUrl);\n  \n  // Return order data with image URL added\n  return {\n    json: {\n      ...orderData,\n      cake_image_url: cakeImageUrl,\n      cake_name_only: cakeNameOnly\n    }\n  };\n  \n} else {\n  console.log('Regular chat message - no image needed');\n  \n  // For regular chat messages, just pass through\n  return {\n    json: orderData\n  };\n}"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -240,
+        -16
+      ],
+      "id": "48843bdf-a834-421e-9630-9f17e46c79dd",
+      "name": "Add Cake Image"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Get the combined data from the payment flow\nconst combinedData = $input.first().json;\nconst cakeName = combinedData.cake_details || '';\n\nconsole.log('Combined Data:', JSON.stringify(combinedData, null, 2));\nconsole.log('Cake Details:', cakeName);\n\n// Map cake names to Imgur DIRECT image URLs (same as main workflow)\nconst cakeImages = {\n  'Victoria Sponge': 'https://i.imgur.com/9XgiqW5.jpg',\n  'Chocolate Indulgence': 'https://i.imgur.com/yNYdcAE.jpg',\n  'Red Velvet Dream': 'https://i.imgur.com/7JYGBgK.jpg', \n  'Lemon Drizzle Delight': 'https://i.imgur.com/YxJtORB.jpg',\n  'Vanilla Bean Classic': 'https://i.imgur.com/kUoFs1r.jpg',\n  'Carrot Cake Supreme': 'https://i.imgur.com/bsrQwp2.jpg',\n  'Wedding Elegance': 'https://i.imgur.com/VUBc6Gd.jpg',\n  'Birthday Special': 'https://i.imgur.com/5GLsstV.jpg',\n  'Black Forest Gateau': 'https://i.imgur.com/QmVO3Fa.jpg',\n  'Strawberry Shortcake': 'https://i.imgur.com/kyBtLKL.jpg',\n  'Chocolate Orange Fusion': 'https://i.imgur.com/XJrWZbC.jpg',\n  'Funfetti Surprise': 'https://i.imgur.com/ft9vNQC.jpg',\n  'Tiramisu Cake': 'https://i.imgur.com/q3hIv7V.jpg',\n  'Banoffee Bliss': 'https://i.imgur.com/qbNUKhw.jpg'\n};\n\n// Extract cake name (remove size info)\nconst cakeNameOnly = cakeName.split(' - ')[0].trim();\nconsole.log('Cake Name Only:', cakeNameOnly);\n\n// Get the image URL\nconst cakeImageUrl = cakeImages[cakeNameOnly] || 'https://i.imgur.com/default.jpg'; // Default image\n\nconsole.log('Selected Image URL:', cakeImageUrl);\n\n// Return data with image URL added\nreturn {\n  json: {\n    ...combinedData,\n    cake_image_url: cakeImageUrl,\n    cake_name_only: cakeNameOnly\n  }\n};"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        848,
+        736
+      ],
+      "id": "d0552089-8e75-4d20-9eec-0432ca24312c",
+      "name": "Add Cake Image1"
+    },
+    {
+      "parameters": {
+        "content": "## Add Cake Image\n\n**What it does**: Maps cake names to image URLs for email display\n**Input**: Combined order data\n**Output**: Order data with cake image URL added\n**Role**: Enhances emails with visual cake representations",
+        "height": 432,
+        "color": 6
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -304,
+        -320
+      ],
+      "typeVersion": 1,
+      "id": "3bfeb7e1-8751-4992-8694-43bcb61b6bb4",
+      "name": "Sticky Note27"
+    },
+    {
+      "parameters": {
+        "content": "## HTTP Request\n\n**What it does**: Fetches complete PayPal order details using order token\n**Input**: PayPal order token + API credentials\n**Output**: Full order information from PayPal\n**Role**: Retrieves order details including custom_id and payment info",
+        "height": 432
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -240,
+        432
+      ],
+      "typeVersion": 1,
+      "id": "ee4eb62e-47b9-4d4f-8ecd-c96f688ae032",
+      "name": "Sticky Note28"
+    },
+    {
+      "parameters": {
+        "content": "## Lookup Order Details\n\n**What it does**: Finds order in Google Sheets using order reference\n**Input**: Order reference from PayPal\n**Output**: Complete customer and order data\n**Role**: Retrieves full order details from business database",
+        "height": 432,
+        "color": 4
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        240,
+        432
+      ],
+      "typeVersion": 1,
+      "id": "85651b42-8e62-41b5-8beb-d2974f1eeea9",
+      "name": "Sticky Note29"
+    },
+    {
+      "parameters": {
+        "content": "## Add Cake Image1\n\n**What it does**: Maps cake names to image URLs for email display\n**Input**: Combined order data\n**Output**: Order data with cake image URL added\n**Role**: Enhances emails with visual cake representations",
+        "height": 432,
+        "color": 6
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        768,
+        432
+      ],
+      "typeVersion": 1,
+      "id": "82511e9d-3af2-4ff7-b484-65f1a6d1ab7a",
+      "name": "Sticky Note30"
+    },
+    {
+      "parameters": {
+        "content": "## Combine Data\n\n**What it does**: Merges PayPal payment data with complete order details from Google Sheets\n**Input**: PayPal payment info + Customer order data from sheet lookup\n**Output**: Complete unified order record with payment and customer details\n**Role**: Creates comprehensive order data combining payment confirmation with original customer information for emails and notifications\n",
+        "height": 432,
+        "width": 288
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        480,
+        432
+      ],
+      "typeVersion": 1,
+      "id": "95135a2b-f851-47f3-ba43-762d1ca24a4a",
+      "name": "Sticky Note31"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Cake Agent": {
+      "main": [
+        [
+          {
+            "node": "Parse Order",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simple Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "Cake Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI1": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Cake Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check Inventory": {
+      "ai_tool": [
+        [
+          {
+            "node": "Cake Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get PayPal Token": {
+      "main": [
+        [
+          {
+            "node": "Create PayPal Order",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create PayPal Order": {
+      "main": [
+        [
+          {
+            "node": "Format Chat Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Format Chat Response": {
+      "main": [
+        [
+          {
+            "node": "Send a photo message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Save Order Details",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Send a text message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Save Order Details": {
+      "main": [
+        [
+          {
+            "node": "Get PayPal Token",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse Order": {
+      "main": [
+        [
+          {
+            "node": "Add Cake Image",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "PayPal Success Webhook": {
+      "main": [
+        [
+          {
+            "node": "Process PayPal Success",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "PayPal Cancel Webhook": {
+      "main": [
+        [
+          {
+            "node": "Process PayPal Cancel",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Process PayPal Success": {
+      "main": [
+        [
+          {
+            "node": "Get PayPal Token2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Process PayPal Cancel": {
+      "main": [
+        [
+          {
+            "node": "Respond Cancel",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Capture PayPal Payment": {
+      "main": [
+        [
+          {
+            "node": "Format Success Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Format Success Response": {
+      "main": [
+        [
+          {
+            "node": "Update Order Status",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Customer notification",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update Order Status": {
+      "main": [
+        []
+      ]
+    },
+    "Get PayPal Token2": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Respond Success": {
+      "main": [
+        []
+      ]
+    },
+    "Vendor Notification": {
+      "main": [
+        [
+          {
+            "node": "Respond Success",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send to customer": {
+      "main": [
+        []
+      ]
+    },
+    "Telegram Trigger": {
+      "main": [
+        [
+          {
+            "node": "Cake Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Customer notification": {
+      "main": [
+        [
+          {
+            "node": "Vendor Notification",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Lookup Order Details": {
+      "main": [
+        [
+          {
+            "node": "Combined Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Combined Data": {
+      "main": [
+        [
+          {
+            "node": "Add Cake Image1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request": {
+      "main": [
+        [
+          {
+            "node": "Process PayPal Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Process PayPal Response": {
+      "main": [
+        [
+          {
+            "node": "Lookup Order Details",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send a photo message": {
+      "main": [
+        [
+          {
+            "node": "Send to customer",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Add Cake Image": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Add Cake Image1": {
+      "main": [
+        [
+          {
+            "node": "Capture PayPal Payment",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "0716e4c9-7276-4815-ba6c-2273fc5d898e",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "f99ddb1625a05aec2e554d3142216f804407df0995c99e2dd6ccb18c48cdfbfb"
+  },
+  "id": "cVqI56O0mjRx1JjF",
+  "tags": []
+}
